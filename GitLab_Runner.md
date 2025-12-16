@@ -1,66 +1,43 @@
 ### Установить GitLab Runner. Выполните на сервере:
 
-  
-
 ```bash
-
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
 
 sudo apt install -y gitlab-runner
-
 ```
-
-  
 
 ```bash
-
 sudo gitlab-runner register
-
 ```
+---
 
 ### Машина VM2
 
 ```text
-
 И далее будут вопросы — отвечайте так:
 
-  
-
 Enter the GitLab instance URL:
-
 http://192.168.56.101/
 
-  
-
 Enter the registration token:
-
 (вставьте токен из GitLab)
 
-  
-
 Enter a description for the runner:
-
 runner-102
 
-  
-
 Enter tags (optional):
-
 test
-
-  
 
 Enter an executor:
 
 docker
-
 docker:latest
 
 ```
+---
+### Конфиг gitlab-runner можно посмотреть по этому пути:
 ```bash
-
 sudo nano /etc/gitlab-runner/config.toml
-
 ```
 
 ```text
@@ -130,43 +107,26 @@ volumes = [
 shm_size = 0
 
 network_mtu = 0
-
-  
-
 ```
+---
 
 ### Машина VM3 Deploy Runner
-
-  
 
 ```text
 
 Enter the GitLab instance URL:
-
 http://192.168.56.101/
 
-  
-
 Enter the registration token:
-
 (вставьте токен из GitLab)
 
-  
-
 Enter a description for the runner:
-
 runner-103
 
-  
-
 Enter tags (optional):
-
 deploy
 
-  
-
 Enter an executor:
-
 shell
 
 ```
