@@ -19,6 +19,6 @@
 - Диск: минимум ~10-20 ГБ свободного.
 
 ### Шаги:
-1. Установить ![GitLab](GitLab.md) (VM1)
-2. Установить ![GitLab Runner](GitLab Runner.md) (VM2, VM3)
+1. Установить [GitLab](GitLab.md) (VM1)
+2. `Установить [GitLab_Runner](GitLab_Runner.md) (VM2, VM3)
 3. Создать файл .gitlab-ci.yml
