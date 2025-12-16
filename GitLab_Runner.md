@@ -31,8 +31,8 @@ test
 Enter an executor:
 
 docker
-docker:latest
-
+Enter the default Docker image (for example, ruby:2.7):
+docker:24.0
 ```
 ---
 ### Конфиг gitlab-runner можно посмотреть по этому пути:
@@ -86,7 +86,7 @@ MaxUploadedArchiveSize = 0
 
 tls_verify = false
 
-image = "docker:latest"
+image = "docker:24.0.7"
 
 privileged = false
 
