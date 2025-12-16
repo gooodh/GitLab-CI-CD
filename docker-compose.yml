@@ -1,0 +1,10 @@
+# docker-compose.yml
+services:
+  bot:
+    image: 192.168.56.101:5050/nikulin/fastapi-temp/fastapi:production
+    container_name: bot
+    command: bash entrypoint.sh
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
