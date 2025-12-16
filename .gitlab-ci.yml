@@ -1,0 +1,67 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  IMAGE_NAME: "$CI_REGISTRY_IMAGE/fastapi"
+  DOCKER_TLS_CERTDIR: ""
+
+before_script:
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+
+# ---------------------- BUILD ----------------------
+build-job:
+  stage: build
+  tags: [test]
+  script:
+    - echo "Building image..."
+    - |
+      docker build \
+        --build-arg SECRET_KEY="$SECRET_KEY" \
+        --build-arg ALGORITHM="$ALGORITHM" \
+        --build-arg POSTGRES_USER="$POSTGRES_USER" \
+        --build-arg POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+        --build-arg POSTGRES_HOST="$POSTGRES_HOST" \
+        --build-arg POSTGRES_PORT="$POSTGRES_PORT" \
+        --build-arg POSTGRES_DB="$POSTGRES_DB" \
+        -t "$IMAGE_NAME:$CI_COMMIT_SHA" .
+    - echo "Image built, waiting for tests..."
+
+# ---------------------- TESTS (SQLite) ----------------------
+test-job:
+  stage: test
+  tags: [test]
+  script:
+    - echo "Running tests with SQLite..."
+    - |
+      docker run --rm \
+        --user root \
+        -e DATABASE_URL="sqlite+aiosqlite:///./test.db" \
+        -e TESTING=true \
+        -v /tmp:/tmp \
+        "$IMAGE_NAME:$CI_COMMIT_SHA" \
+        sh -c "pytest -p no:cacheprovider -v tests/test_main.py || exit 1"
+    - docker push "$IMAGE_NAME:$CI_COMMIT_SHA"
+    - docker tag "$IMAGE_NAME:$CI_COMMIT_SHA" "$IMAGE_NAME:production"
+    - docker push "$IMAGE_NAME:production"
+    - echo "Tests passed, images pushed successfully!"
+
+# ---------------------- DEPLOY ----------------------
+deploy-job:
+  stage: deploy
+  tags: [deploy]      # Runner на VM3 (prod server)
+  script:
+    - echo "SECRET_KEY=$SECRET_KEY" > .env
+    - echo "ALGORITHM=$ALGORITHM" >> .env
+    - echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+    - echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+    - echo "POSTGRES_HOST=$POSTGRES_HOST" >> .env
+    - echo "POSTGRES_PORT=$POSTGRES_PORT" >> .env
+    - echo "POSTGRES_DB=$POSTGRES_DB" >> .env
+    - docker compose pull
+    - docker compose up -d
+  environment:
+    name: production
+    url: "http://your.server.ip:8080"
+  when: manual
